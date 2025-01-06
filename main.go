@@ -37,7 +37,7 @@ func (myFarm *farm) Read(filename string) {
 	if err != nil {
 		log.Println("error reading", err)
 	}
-	content := strings.Split(string(bytes), "\r\n")
+	content := strings.Split(string(bytes), "\n")
 
 	myFarm.rooms = make(map[string][]int)
 	myFarm.start = make(map[string][]int)
@@ -225,12 +225,38 @@ func MoveAnts(paths [][]string) {
 				p = append(p, paths[i][j])
 			}
 		}
+		rooms := make(map[string]bool)
+		ants := make(map[string]string)
+
+		for _, room := range p {
+			rooms[room] = true
+		}
+		for _, ant := range a {
+			ants[ant] = ""
+		}
+
 		for l := 0; l < len(a); l++ {
-			for x := 0; x < len(p); x++ {
-				text += a[l] + "-" + p[x] + " "
+			x := 0
+			rooms[p[x]] = false
+
+			for x < len(p) {
+				if !rooms[p[x]] {
+					text += a[l] + "-" + p[x] + " "
+					rooms[p[x]] = true
+				}
+				x++
 			}
 			text += "\n"
+
 		}
+
+		// for l := 0; l < len(a); l++ {
+		// 	for x := 0; x < len(p); x++ {
+		// 		text += a[l] + "-" + p[x] + " "
+		// 	}
+		// 	text += "\n"
+		// }
+
 		// for l := 0; l < len(a); l++ {
 		// 	for k := 0; k < len(p); k++ {
 		// 		fmt.Println(a[l] + "-" + p[k])
