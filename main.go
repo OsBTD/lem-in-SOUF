@@ -217,6 +217,11 @@ func Ants(myFarm farm, paths [][]string) [][]string {
 func MoveAnts(paths [][]string) {
 	var p, a []string
 	var text string
+	var lines []string
+	var splitted []string
+	var linesx [][]string
+	// var all [][][]string
+	// var all [][][]string
 	for i := 0; i < len(paths); i++ {
 		for j := 1; j < len(paths[i]); j++ {
 			if strings.HasPrefix(paths[i][j], "L") {
@@ -225,49 +230,54 @@ func MoveAnts(paths [][]string) {
 				p = append(p, paths[i][j])
 			}
 		}
-		rooms := make(map[string]bool)
-		ants := make(map[string]string)
-
-		for _, room := range p {
-			rooms[room] = true
-		}
-		for _, ant := range a {
-			ants[ant] = ""
-		}
 
 		for l := 0; l < len(a); l++ {
-			x := 0
-			rooms[p[x]] = false
-
-			for x < len(p) {
-				if !rooms[p[x]] {
-					text += a[l] + "-" + p[x] + " "
-					rooms[p[x]] = true
-				}
-				x++
+			for x := 0; x < len(p); x++ {
+				text += a[l] + "-" + p[x] + " "
 			}
 			text += "\n"
-
 		}
 
-		// for l := 0; l < len(a); l++ {
-		// 	for x := 0; x < len(p); x++ {
-		// 		text += a[l] + "-" + p[x] + " "
-		// 	}
-		// 	text += "\n"
+		// all = append(all, lines)
+		// split := strings.Split(text, "\n")
+		// var r []string
+		// var lines [][]string
+		// for _, line := range split {
+		// 	r = append(r, line)
+		// 	lines = append(lines, r)
 		// }
 
-		// for l := 0; l < len(a); l++ {
-		// 	for k := 0; k < len(p); k++ {
-		// 		fmt.Println(a[l] + "-" + p[k])
-		// 		continue
-		// 	}
+		// fmt.Println("lines is ", lines)
+
+		// rooms := make(map[string]bool)
+		// ants := make(map[string]string)
+
+		// for _, room := range p {
+		// 	rooms[room] = true
 		// }
+		// for _, ant := range a {
+		// 	ants[ant] = ""
+		// }
+
+		// for _, path := range lines {
+		// 	all = append(all, [][]string{path})
+		// }
+		// fmt.Println("all is ", all)
 
 		fmt.Println("\nwhole text is :", text)
+
+		splitted = strings.Split(text, "\n")
+
+		// fmt.Println("\nall :", lines)
+
 		a = []string{}
 		p = []string{}
-		text = ""
-
 	}
+	lines = append(lines, splitted...)
+	for _, line := range lines {
+		linesx = append(linesx, []string{line})
+	}
+	linesx = linesx[:len(linesx)-1]
+	fmt.Println("\n lines is :", lines)
+	fmt.Println("\n linesx is :", linesx)
 }
