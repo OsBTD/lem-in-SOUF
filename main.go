@@ -215,8 +215,8 @@ func Ants(myFarm farm, paths [][]string) [][]string {
 }
 
 func MoveAnts(paths [][]string) {
-	var p, a []string
-	var text string
+	var p, a, text []string
+	var lines [][]string
 	for i := 0; i < len(paths); i++ {
 		for j := 1; j < len(paths[i]); j++ {
 			if strings.HasPrefix(paths[i][j], "L") {
@@ -225,23 +225,36 @@ func MoveAnts(paths [][]string) {
 				p = append(p, paths[i][j])
 			}
 		}
-		for l := 0; l < len(a); l++ {
+		l := 0
+		for l < len(a) {
 			for x := 0; x < len(p); x++ {
-				text += a[l] + "-" + p[x] + " "
+				text = append(text, a[l]+"-"+p[x]+" ")
 			}
-			text += "\n"
+			lines = append(lines, text)
+			text = []string{}
+			l++
 		}
-		// for l := 0; l < len(a); l++ {
-		// 	for k := 0; k < len(p); k++ {
-		// 		fmt.Println(a[l] + "-" + p[k])
-		// 		continue
-		// 	}
-		// }
+		fmt.Println("\nlines are : ", lines)
 
-		fmt.Println("\nwhole text is :", text)
+		for i, line := range lines {
+			space := []string{}
+			if i != 0 {
+				for n := 0; n < i; n++ {
+					space = append(space, " ")
+				}
+				line = append(space, line...)
+
+			}
+			fmt.Println("l0", i,  line[0])
+			fmt.Println("l1", i,  line[1])
+			fmt.Println("l2", i,  line[2])
+			fmt.Println("l3", i,  line[3])
+
+
+		}
 		a = []string{}
 		p = []string{}
-		text = ""
-
+		lines = [][]string{}
 	}
+
 }
