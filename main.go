@@ -193,7 +193,7 @@ func Ants(myFarm farm, paths [][]string) [][]string {
 	fmt.Println("num of ants is :", ants)
 
 	k := 0
-	for i := ants; i > 0; i-- {
+	for i := 1; i <= ants; i++ {
 		for j := 0; j < len(paths); j++ {
 			if k < len(paths) {
 				if len(paths[k]) >= len(paths[j]) {
