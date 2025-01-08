@@ -37,7 +37,7 @@ func (myFarm *farm) Read(filename string) {
 	if err != nil {
 		log.Println("error reading", err)
 	}
-	content := strings.Split(string(bytes), "\r\n")
+	content := strings.Split(string(bytes), "\n")
 
 	myFarm.rooms = make(map[string][]int)
 	myFarm.start = make(map[string][]int)
@@ -217,6 +217,8 @@ func Ants(myFarm farm, paths [][]string) [][]string {
 func MoveAnts(paths [][]string) {
 	var p, a, text []string
 	var lines [][]string
+	var all [][][]string
+
 	for i := 0; i < len(paths); i++ {
 		for j := 1; j < len(paths[i]); j++ {
 			if strings.HasPrefix(paths[i][j], "L") {
@@ -225,36 +227,47 @@ func MoveAnts(paths [][]string) {
 				p = append(p, paths[i][j])
 			}
 		}
-		l := 0
-		for l < len(a) {
+		for l := 0; l < len(a); l++ {
 			for x := 0; x < len(p); x++ {
 				text = append(text, a[l]+"-"+p[x]+" ")
 			}
 			lines = append(lines, text)
 			text = []string{}
-			l++
 		}
 		fmt.Println("\nlines are : ", lines)
-
-		for i, line := range lines {
+		var print [][]string
+		for i := range lines {
 			space := []string{}
 			if i != 0 {
 				for n := 0; n < i; n++ {
-					space = append(space, " ")
+					space = append(space, "s")
 				}
-				line = append(space, line...)
-
+				lines[i] = append(space, lines[i]...)
+				print = append(print, lines[i])
+			} else {
+				print = append(print, lines[i])
 			}
-			fmt.Println("l0", i,  line[0])
-			fmt.Println("l1", i,  line[1])
-			fmt.Println("l2", i,  line[2])
-			fmt.Println("l3", i,  line[3])
-
-
+			// fmt.Println("l0", i, lines[i][0])
+			// fmt.Println("l1", i, lines[i][1])
+			// fmt.Println("l2", i, line[2])
+			// fmt.Println("l3", i, line[3])
 		}
+
+		all = append(all, print)
 		a = []string{}
 		p = []string{}
 		lines = [][]string{}
-	}
 
+	}
+	fmt.Println("all is : ", all)
+	for d1 := 0; d1 < len(all); d1++ { // 3 paths
+		for d2 := 0; d2 < len(all[d1]); d2++ { // all ants in a path
+			print(all[d1][d2][0])
+		}
+	}
 }
+
+// func split(s []string) []string {
+// 	s = s[1:]
+// 	return s
+// }
