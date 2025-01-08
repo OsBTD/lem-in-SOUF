@@ -217,7 +217,7 @@ func Ants(myFarm farm, paths [][]string) [][]string {
 func MoveAnts(paths [][]string) {
 	var p, a, text []string
 	var lines [][]string
-	var all [][][]string
+	var all [][]string
 
 	for i := 0; i < len(paths); i++ {
 		for j := 1; j < len(paths[i]); j++ {
@@ -240,7 +240,7 @@ func MoveAnts(paths [][]string) {
 			space := []string{}
 			if i != 0 {
 				for n := 0; n < i; n++ {
-					space = append(space, "s")
+					space = append(space, "")
 				}
 				lines[i] = append(space, lines[i]...)
 				print = append(print, lines[i])
@@ -253,21 +253,23 @@ func MoveAnts(paths [][]string) {
 			// fmt.Println("l3", i, line[3])
 		}
 
-		all = append(all, print)
+		all = append(all, print...)
 		a = []string{}
 		p = []string{}
 		lines = [][]string{}
 
 	}
 	fmt.Println("all is : ", all)
-	for d1 := 0; d1 < len(all); d1++ { // 3 paths
-		for d2 := 0; d2 < len(all[d1]); d2++ { // all ants in a path
-			print(all[d1][d2][0])
+
+	for len(all) > 0 {
+		for i := 0; i < len(all); i++ {
+			fmt.Print(all[i][0])
+			all[i] = all[i][1:]
+
+			if len(all[i]) == 0 {
+				all = append(all[:i], all[i+1:]...)
+			}
 		}
+		fmt.Println()
 	}
 }
-
-// func split(s []string) []string {
-// 	s = s[1:]
-// 	return s
-// }
