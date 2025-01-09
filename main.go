@@ -128,6 +128,7 @@ func BFS(myFarm farm) [][]string {
 			Parents := make(map[string]string)
 
 			Queue = append(Queue, adj)
+			Visited[key] = true
 			Visited[adj] = true
 			for key := range end {
 				endd = key
@@ -161,15 +162,11 @@ func BFS(myFarm farm) [][]string {
 			for Parents[current] != "" {
 				current = Parents[current]
 				path = append([]string{current}, path...)
+
 			}
 			path = append([]string{key}, path...)
 			Sorted = append(Sorted, path)
 
-			for i := range path {
-				if i != 0 {
-					Visited[path[i]] = true
-				}
-			}
 		}
 	}
 	fmt.Printf("\npaths before sorting are : %v\n", Sorted)
@@ -229,10 +226,9 @@ func Ants(myFarm farm, paths [][]string) [][]string {
 			} else {
 				k = 0
 			}
-					k = 0
+			k = 0
 
 		}
-
 	}
 
 	return paths
