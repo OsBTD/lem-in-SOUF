@@ -199,20 +199,21 @@ func Ants(myFarm farm, paths [][]string) [][]string {
 	ants := myFarm.ants_number
 	fmt.Println("\n\npaaaaath are :: ", paths)
 	// fmt.Println("num of ants is :", ants)
-	lol := make(map[string]bool)
-	for s := 0; s < len(paths); s++ {
-		for p := 0; p < len(paths[s]); p++ {
-			lol[paths[s][p]] = true
-		}
-	}
 
-	for t := 0; t < len(paths); t++ {
-		for c := 0; c < len(paths[t]); c++ {
-			if lol[paths[t][c]] && len(paths) > 1 {
-				paths = append(paths[:t], paths[t+1:]...)
-			}
-		}
-	}
+	// lol := make(map[string]bool)
+	// for s := 0; s < len(paths); s++ {
+	// 	for p := 0; p < len(paths[s]); p++ {
+	// 		lol[paths[s][p]] = true
+	// 	}
+	// }
+
+	// for t := 0; t < len(paths); t++ {
+	// 	for c := 0; c < len(paths[t]); c++ {
+	// 		if lol[paths[t][c]] && len(paths) > 1 {
+	// 			paths = append(paths[:t], paths[t+1:]...)
+	// 		}
+	// 	}
+	// }
 
 	fmt.Println("\n\npaaaaath after filtering are :: ", paths)
 
@@ -220,19 +221,18 @@ func Ants(myFarm farm, paths [][]string) [][]string {
 	for i := 1; i <= ants; i++ {
 		for j := 0; j < len(paths); j++ {
 			if k < len(paths) {
-				if len(paths[k]) >= len(paths[j]) {
+				if len(paths[k]) <= len(paths[j]) {
 					paths[k] = append(paths[k], "L"+strconv.Itoa(i))
+					k++
 					break
 				}
 			} else {
 				k = 0
-				if len(paths[k]) >= len(paths[j]) {
-					paths[k] = append(paths[k], "L"+strconv.Itoa(i))
-					break
-				}
 			}
+					k = 0
+
 		}
-		k++
+
 	}
 
 	return paths
@@ -242,7 +242,7 @@ func MoveAnts(paths [][]string) {
 	var p, a, text []string
 	var lines [][]string
 	var all [][]string
-
+	fmt.Println("\n\npaths are :", paths)
 	for i := 0; i < len(paths); i++ {
 		for j := 1; j < len(paths[i]); j++ {
 			if strings.HasPrefix(paths[i][j], "L") {
@@ -273,8 +273,7 @@ func MoveAnts(paths [][]string) {
 			}
 			// fmt.Println("l0", i, lines[i][0])
 			// fmt.Println("l1", i, lines[i][1])
-			// fmt.Println("l2", i, line[2])
-			// fmt.Println("l3", i, line[3])
+			// fmt.Println("l2", i, lines[i][2])
 		}
 
 		all = append(all, print...)
@@ -288,10 +287,14 @@ func MoveAnts(paths [][]string) {
 	for len(all) > 0 {
 		for i := 0; i < len(all); i++ {
 			fmt.Print(all[i][0])
+			// fmt.Println("all elem", all[i])
+			// fmt.Println("all minus elem", all[i][1:])
+
 			all[i] = all[i][1:]
 
 			if len(all[i]) == 0 {
 				all = append(all[:i], all[i+1:]...)
+				i--
 			}
 		}
 		fmt.Println()
