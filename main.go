@@ -164,10 +164,18 @@ func BFS(myFarm farm) [][]string {
 			}
 			path = append([]string{key}, path...)
 			Sorted = append(Sorted, path)
+
+			for i := range path {
+				if i != 0 {
+					Visited[path[i]] = true
+				}
+			}
 		}
 	}
+	fmt.Printf("\npaths before sorting are : %v\n", Sorted)
+
 	Sorted = SortPath(Sorted)
-	// fmt.Printf("\nall sorted paths from start to end: %v\n", Sorted)
+	fmt.Printf("\nall sorted paths from start to end : %v\n", Sorted)
 	return Sorted
 }
 
@@ -190,7 +198,7 @@ func SortPath(Paths [][]string) [][]string {
 func Ants(myFarm farm, paths [][]string) [][]string {
 	ants := myFarm.ants_number
 
-	fmt.Println("num of ants is :", ants)
+	// fmt.Println("num of ants is :", ants)
 
 	k := 0
 	for i := 1; i <= ants; i++ {
@@ -260,6 +268,21 @@ func MoveAnts(paths [][]string) {
 
 	}
 	fmt.Println("all is : ", all)
+	var lol = make(map[string]bool)
+	for i := 0; i < len(all); i++ {
+		for j := 0; j < len(all[i]); j++ {
+			lol[all[i][j][2:]] = true
+		}
+		for k := 0; k < len(all); k++ {
+			for c := 0; c < len(all[k]); c++ {
+					if lol[all[k][c][2:]] {
+						all = append(all[:k], all[k+1:]...)
+					}
+				
+			}
+		}
+	}
+	fmt.Println("all after filtering is : ", all)
 
 	for len(all) > 0 {
 		for i := 0; i < len(all); i++ {
