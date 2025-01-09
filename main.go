@@ -197,8 +197,24 @@ func SortPath(Paths [][]string) [][]string {
 
 func Ants(myFarm farm, paths [][]string) [][]string {
 	ants := myFarm.ants_number
-
+	fmt.Println("\n\npaaaaath are :: ", paths)
 	// fmt.Println("num of ants is :", ants)
+	lol := make(map[string]bool)
+	for s := 0; s < len(paths); s++ {
+		for p := 0; p < len(paths[s]); p++ {
+			lol[paths[s][p]] = true
+		}
+	}
+
+	for t := 0; t < len(paths); t++ {
+		for c := 0; c < len(paths[t]); c++ {
+			if lol[paths[t][c]] && len(paths) > 1 {
+				paths = append(paths[:t], paths[t+1:]...)
+			}
+		}
+	}
+
+	fmt.Println("\n\npaaaaath after filtering are :: ", paths)
 
 	k := 0
 	for i := 1; i <= ants; i++ {
@@ -268,21 +284,6 @@ func MoveAnts(paths [][]string) {
 
 	}
 	fmt.Println("all is : ", all)
-	var lol = make(map[string]bool)
-	for i := 0; i < len(all); i++ {
-		for j := 0; j < len(all[i]); j++ {
-			lol[all[i][j][2:]] = true
-		}
-		for k := 0; k < len(all); k++ {
-			for c := 0; c < len(all[k]); c++ {
-					if lol[all[k][c][2:]] {
-						all = append(all[:k], all[k+1:]...)
-					}
-				
-			}
-		}
-	}
-	fmt.Println("all after filtering is : ", all)
 
 	for len(all) > 0 {
 		for i := 0; i < len(all); i++ {
