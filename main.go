@@ -229,6 +229,7 @@ func Ants(myFarm farm, paths [][]string) [][]string {
 			k = 0
 
 		}
+		
 	}
 
 	return paths
