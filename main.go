@@ -196,23 +196,23 @@ func Ants(myFarm farm, paths [][]string) [][]string {
 	ants := myFarm.ants_number
 	fmt.Println("\n\npaaaaath are :: ", paths)
 	// fmt.Println("num of ants is :", ants)
-
-	// lol := make(map[string]bool)
-	// for s := 0; s < len(paths); s++ {
-	// 	for p := 0; p < len(paths[s]); p++ {
-	// 		lol[paths[s][p]] = true
-	// 	}
-	// }
-
-	// for t := 0; t < len(paths); t++ {
-	// 	for c := 0; c < len(paths[t]); c++ {
-	// 		if lol[paths[t][c]] && len(paths) > 1 {
-	// 			paths = append(paths[:t], paths[t+1:]...)
-	// 		}
-	// 	}
-	// }
-
-	fmt.Println("\n\npaaaaath after filtering are :: ", paths)
+	var valid [][]string
+	lol := make(map[string]bool)
+	for s := 0; s < len(paths); s++ {
+		for t := 0; t < len(paths[s]); t++ {
+			lol[paths[s][t]] = true
+		}
+	}
+	for i := 0; i < len(paths); i++ {
+		for j := 0; j < len(paths[i]); j++ {
+			if !lol[paths[i][j]] {
+				valid = append(valid, paths[i])
+			} else {
+				continue
+			}
+		}
+	}
+	fmt.Println("\n\npaaaaath after filtering are :: ", valid)
 
 	k := 0
 	for i := 1; i <= ants; i++ {
@@ -229,7 +229,6 @@ func Ants(myFarm farm, paths [][]string) [][]string {
 			k = 0
 
 		}
-		
 	}
 
 	return paths
