@@ -18,14 +18,26 @@ type farm struct {
 
 func main() {
 	var myFarm farm
+	scenario := false
 	myFarm.Read("test.txt")
-	BiBFS(&myFarm) // Passing pointer to farm to avoid copying it
-	fmt.Println("number of ants is : ", myFarm.ants_number)
-	fmt.Println("rooms are : ", myFarm.rooms)
-	fmt.Println("start is : ", myFarm.start)
-	fmt.Println("end is : ", myFarm.end)
-	fmt.Println("links are : ", myFarm.links)
-	fmt.Println("adjacent is : ", Graph(myFarm))
+	bfs := BFS(myFarm, scenario)
+	bfsn := BFS(myFarm, !scenario)
+	fmt.Println("not scenario :", bfsn)
+	ants := Ants(myFarm, BFS(myFarm, scenario), BFS(myFarm, !scenario))
+	fmt.Println(scenario, !scenario)
+
+	fmt.Printf("\nall sorted paths from start to end with scenario: %s\n", bfs)
+	fmt.Println("Place all Ants on there path: ", ants)
+	// MoveAnts(myFarm, ants)
+	PrintAnts(myFarm, ants)
+
+	// fmt.Println(Ants(myFarm, BFS(myFarm)))
+	// fmt.Println("number of ants is : ", myFarm.ants_number)
+	// fmt.Println("rooms are : ", myFarm.rooms)
+	// fmt.Println("start is : ", myFarm.start)
+	// fmt.Println("end is : ", myFarm.end)
+	// fmt.Println("links are : ", myFarm.links)
+	// fmt.Println("adjacent is : ", Graph(myFarm))
 }
 
 func (myFarm *farm) Read(filename string) {
@@ -57,7 +69,9 @@ func (myFarm *farm) Read(filename string) {
 				if err == nil && err2 == nil {
 					myFarm.start[split[0]] = []int{x, y}
 				}
+
 			}
+
 		} else if strings.TrimSpace(content[index]) == "##end" {
 			en++
 			if index+1 <= len(content)-1 {
@@ -67,6 +81,7 @@ func (myFarm *farm) Read(filename string) {
 				if err == nil && err2 == nil {
 					myFarm.end[split[0]] = []int{x, y}
 				}
+
 			}
 		} else if strings.Contains(content[index], "-") {
 			split := strings.Split(strings.TrimSpace(content[index]), "-")
@@ -91,115 +106,428 @@ func (myFarm *farm) Read(filename string) {
 	}
 }
 
-func Graph(farm farm) map[string][]string {
+func Graph(farm farm, scenario bool) map[string][]string {
 	adjacent := make(map[string][]string)
+	var Start string
+	for key := range farm.start {
+		Start = key
+	}
+
 	for room := range farm.rooms {
 		adjacent[room] = []string{}
 	}
 	for room, links := range farm.links {
 		for _, link := range links {
-			adjacent[room] = append(adjacent[room], link)
-			adjacent[link] = append(adjacent[link], room)
+			if scenario {
+				if room == Start {
+					adjacent[room] = append([]string{link}, adjacent[room]...)
+					adjacent[link] = append([]string{room}, adjacent[link]...)
+				} else {
+
+					adjacent[room] = append(adjacent[room], link)
+					adjacent[link] = append(adjacent[link], room)
+				}
+			} else {
+
+				adjacent[room] = append(adjacent[room], link)
+				adjacent[link] = append(adjacent[link], room)
+			}
 		}
 	}
 
 	return adjacent
 }
 
-func BiBFS(myFarm *farm) {
-	adjacent := Graph(*myFarm)
-	var QueueStart, QueueEnd []string
-	var start, end string
-	VisitedStart := make(map[string]bool)
-	VisitedEnd := make(map[string]bool)
-	ParentsStart := make(map[string]string)
-	ParentsEnd := make(map[string]string)
+func BFS(myFarm farm, scenario bool) [][]string {
+	adjacent := Graph(myFarm, scenario)
+	var Queue []string
+	var endd string
+	start := myFarm.start
+	end := myFarm.end
+	var Sorted [][]string
 
-	// Initialize Start and End rooms
-	for key := range myFarm.start {
-		start = key
-		QueueStart = append(QueueStart, start)
-		VisitedStart[start] = true
-	}
-	for key := range myFarm.end {
-		end = key
-		QueueEnd = append(QueueEnd, end)
-		VisitedEnd[end] = true
-	}
-
-	fmt.Println("\n=== Bi-Directional BFS Initialization ===")
-	fmt.Println("Start room:", start)
-	fmt.Println("End room:", end)
-
-	stepCount := 1
-	// Perform Bi-Directional BFS
-	for len(QueueStart) > 0 && len(QueueEnd) > 0 {
-		// BFS from start side
-		if meetingRoom := bfsStep(adjacent, &QueueStart, VisitedStart, VisitedEnd, ParentsStart); meetingRoom != "" {
-			// If we find a meeting point, reconstruct and print the path
-			fmt.Println("\nFound a path from start to end!")
-			printPath(meetingRoom, ParentsStart, ParentsEnd)
-			return
+	for key := range start {
+		Visited := make(map[string]bool)
+		Visited[key] = true
+		for key := range end {
+			endd = key
 		}
+		i := 0
+		for _, adj := range adjacent[key] {
+			var ar []string
+			if !Visited[adj] {
 
-		// BFS from end side
-		if meetingRoom := bfsStep(adjacent, &QueueEnd, VisitedEnd, VisitedStart, ParentsEnd); meetingRoom != "" {
-			// If we find a meeting point, reconstruct and print the path
-			fmt.Println("\nFound a path from end to start!")
-			printPath(meetingRoom, ParentsEnd, ParentsStart)
-			return
+				Queue = append(Queue, adj)
+				Visited[adj] = true
+			}
+
+			var current string
+			Parents := make(map[string]string)
+
+			finEnd := false
+			for len(Queue) > 0 {
+
+				current = Queue[0]
+
+				ar = append(ar, current)
+				for _, v := range Queue {
+					if v == endd {
+						current = v
+						finEnd = true
+						Queue = []string{}
+						break
+					}
+				}
+
+				fmt.Println("\nCurrent = ", current)
+				Visited[current] = true
+				if !finEnd {
+					if len(Queue) == 1 {
+						Queue = []string{}
+					} else {
+						Queue = Queue[1:]
+					}
+				}
+
+				fmt.Println("Queue after removing current = ", Queue)
+				// Visited[current] = true
+				if current == endd {
+					Visited[current] = true
+					// for _, v := range Queue {
+					// 	if !isUsed[v] {
+					// 		Visited[v] = false
+					// 	}
+					// }
+					fmt.Println("Queue at current=endd is: ", Queue)
+					Queue = []string{}
+					// AllPaths = append(AllPaths, Queue)
+
+					break
+				}
+
+				for _, link := range adjacent[current] {
+					// Visited[current] = true
+					// if link == endd {
+					// 	Queue = append(Queue, link)
+					// 	// Visited[link] = true
+					// 	Parents[link] = current
+					// 	break
+					// }
+
+					if !Visited[link] {
+
+						Queue = append(Queue, link)
+						fmt.Println("Queue after adding link = ", Queue)
+						// Visited[link] = true
+						Parents[link] = current
+					}
+				}
+			}
+
+			if !Visited[endd] {
+				fmt.Print("\n No path found to end room \n")
+				continue
+			}
+			Visited[endd] = false
+			path := []string{endd}
+			current = endd
+
+			for Parents[current] != "" {
+				current = Parents[current]
+				// isUsed[current] = true
+				path = append([]string{current}, path...)
+			}
+			fmt.Println("array of current: ", ar)
+			c := 0
+			for i, v := range ar {
+				for _, e := range path {
+					if v != e {
+						c++
+						fmt.Printf("\nc N° %d is : %d\n", i, c)
+					}
+				}
+				if c == len(path) {
+					fmt.Printf("\nif c = 0 N° %d is : %d\n", i, c)
+
+					Visited[v] = false
+				}
+				c = 0
+			}
+
+			path = append([]string{key}, path...)
+			fmt.Printf("\nPath N° %v is : %v\n", i, path)
+			i++
+			Sorted = append(Sorted, path)
 		}
-
-		stepCount++
+		break
 	}
 
-	// If we finish and haven't found a path
-	fmt.Println("\n=== No path found ===")
+	// fmt.Println("\nAllPaths: ", AllPaths)
+	Sorted = SortPath(Sorted)
+	// fmt.Printf("\nall sorted paths from start to end: %v\n", Sorted)
+	return Sorted
 }
 
-func bfsStep(adjacent map[string][]string, Queue *[]string, Visited, OppositeVisited map[string]bool, Parents map[string]string) string {
-	// Process the front element in the queue
-	current := (*Queue)[0]
-	*Queue = (*Queue)[1:] // Remove the front element of the queue
+func SortPath(Paths [][]string) [][]string {
+	if len(Paths) <= 1 {
+		return Paths
+	}
+	pivot := Paths[len(Paths)-1]
+	var less, greater [][]string
+	for _, v := range Paths[:len(Paths)-1] {
+		if len(v) <= len(pivot) {
+			less = append(less, v)
+		} else {
+			greater = append(greater, v)
+		}
+	}
+	return append(append(SortPath(less), pivot), SortPath(greater)...)
+}
 
-	// Explore connected rooms
-	for _, link := range adjacent[current] {
-		if !Visited[link] {
-			Visited[link] = true
-			Parents[link] = current
-			*Queue = append(*Queue, link)
+func Ants(myFarm farm, path1, path2 [][]string) [][]string {
+	ants := myFarm.ants_number
+	paths := [][]string{}
+	fmt.Println("num of ants is :", ants)
 
-			// If the opposite search has already visited this room, we found a meeting point
-			if OppositeVisited[link] {
-				fmt.Printf("!!! Found meeting point at room '%s' !!!\n", link)
-				return link // Return the meeting room where both searches meet
+	// for i := 0; i < len(paths); i++ {
+	i := 0
+	j := 1
+	for j <= ants {
+		for k := 0; k < len(path1); k++ {
+			if i < len(path1) {
+				if len(path1[i]) > len(path1[k]) {
+					i = k
+				}
+			} else {
+				i = 0
+			}
+			if k == len(path1)-1 {
+				path1[i] = append(path1[i], "L"+strconv.Itoa(j))
+				i = 0
 			}
 		}
+		j++
 	}
 
-	return "" // Return an empty string if no meeting point is found
+	fmt.Println("Path1 = ", path1)
+
+	m := 0
+	n := 1
+	for n <= ants {
+		for k := 0; k < len(path2); k++ {
+			if m < len(path2) {
+				if len(path2[m]) > len(path2[k]) {
+					m = k
+				}
+			} else {
+				m = 0
+			}
+			if k == len(path2)-1 {
+				path2[m] = append(path2[m], "L"+strconv.Itoa(n))
+				m = 0
+			}
+		}
+		n++
+	}
+
+	fmt.Println("Path2 = ", path2)
+
+	if len(path1[len(SortPath(path1))-1]) <= len(path2[len(SortPath(path2))-1]) {
+		for _, v := range path1 {
+			paths = append(paths, v)
+		}
+	} else {
+		for _, v := range path2 {
+			paths = append(paths, v)
+		}
+	}
+
+	// }
+
+	// k := 0
+	// for i := ants; i > 0; i-- {
+	// 	for j := 1; j < len(paths); j++ {
+	// 		if k < len(paths) {
+	// 			if len(paths[k]) <= len(paths[j]) {
+	// 				paths[k] = append(paths[k], "L"+strconv.Itoa(i))
+	// 				k++
+	// 				break
+	// 			} else {
+	// 				k = 0
+	// 			}
+	// 		} else {
+	// 			k = 0
+	// 		}
+	// 	}
+	// }
+
+	return paths
 }
 
-func printPath(meetingRoom string, ParentsStart, ParentsEnd map[string]string) {
-	// Reconstruct path from start to meeting room
-	pathStart := []string{meetingRoom}
-	current := meetingRoom
-	for ParentsStart[current] != "" {
-		current = ParentsStart[current]
-		pathStart = append([]string{current}, pathStart...)
+func MoveAnts(myFarm farm, paths [][]string, scenario bool) {
+	for i := 0; i < len(paths); i++ {
+		k := len(paths[i]) - 1
+		for j := 1; j < len(paths[i]); j++ {
+
+			// if paths[i][j] == "end" {
+			// 	fmt.Print(paths[i][k] + "-" + paths[i][j] + " ")
+			// 	break
+			// }
+
+			fmt.Print(paths[i][k] + "-" + paths[i][j] + " ")
+			// if i == len(paths)-1 {
+			// 	k--
+			// }
+			break
+		}
+
 	}
 
-	// Reconstruct path from end to meeting room
-	pathEnd := []string{}
-	current = meetingRoom
-	for ParentsEnd[current] != "" {
-		current = ParentsEnd[current]
-		pathEnd = append([]string{current}, pathEnd...)
+	var a, b []string
+
+	all := [][][]string{}
+	g := Ants(myFarm, BFS(myFarm, false), BFS(myFarm, true))
+	for i := 0; i < len(g); i++ {
+		for j := 0; j < len(g[i]); j++ {
+			if strings.HasPrefix(g[i][j], "L") {
+				b = append(b, g[i][j])
+			} else if j != 0 {
+				a = append(a, g[i][j])
+			}
+		}
+		all = append(all, [][]string{a, b})
+
+		a = []string{}
+		b = []string{}
+	}
+	fmt.Print("all paths separed: ", all)
+
+	var RoomsArray [][][]string
+	var ArrayElem [][]string
+	var Elem []string
+
+	for i := 0; i < len(all); i++ {
+		for j := len(all[i][1]) - 1; j >= 0; j-- {
+			for k := 0; k < len(all[i][0]); k++ {
+				Elem = append(Elem, all[i][1][j]+"-"+all[i][0][k])
+				for l := j; l < j; l++ {
+					Elem = append([]string{"zz"}, Elem...)
+				}
+			}
+			ArrayElem = append(ArrayElem, Elem)
+			Elem = []string{}
+
+		}
+		RoomsArray = append(RoomsArray, ArrayElem)
+		ArrayElem = [][]string{}
 	}
 
-	pathEnd = append(pathEnd, current)
+	fmt.Print("\nants in Rooms: ", RoomsArray)
 
-	// Combine both paths
-	fullPath := append(pathStart, pathEnd[1:]...)
-	fmt.Printf("\nFull path from start to end: %v\n", fullPath)
+	// for i := 0; i < len(all); i++ {
+	// 	k := 0
+	// 	for j := len(all[i])-1; j >=0; j--{
+	// 		fmt.Print(all[i][j][len(all[i][j])-1-k]+"-"+)
+
+	// 	}
+
+	// }
+	AfterPrint := [][]string{}
+
+	for i := 0; i < len(RoomsArray); i++ {
+		for j := 0; j < len(RoomsArray[i]); j++ {
+			AfterPrint = append(AfterPrint, RoomsArray[i][j])
+		}
+	}
+	fmt.Println("\n After Print: ", AfterPrint)
+
+	for _, v := range AfterPrint {
+		for i := 0; i < len(v); i++ {
+			fmt.Print(v[i])
+		}
+	}
 }
+
+func PrintAnts(myfarm farm, paths [][]string) {
+	var p, a, text []string
+	var lines [][]string
+	var all [][]string
+	fmt.Println("\n\npaths are :", paths)
+	for i := 0; i < len(paths); i++ {
+		for j := 1; j < len(paths[i]); j++ {
+			if strings.HasPrefix(paths[i][j], "L") {
+				a = append(a, paths[i][j])
+			} else {
+				p = append(p, paths[i][j])
+			}
+		}
+		for l := 0; l < len(a); l++ {
+			for x := 0; x < len(p); x++ {
+				text = append(text, a[l]+"-"+p[x]+" ")
+			}
+			lines = append(lines, text)
+			text = []string{}
+		}
+		fmt.Println("\nlines are : ", lines)
+		var print [][]string
+		for i := range lines {
+			space := []string{}
+			if i != 0 {
+				for n := 0; n < i; n++ {
+					space = append(space, "")
+				}
+				lines[i] = append(space, lines[i]...)
+				print = append(print, lines[i])
+			} else {
+				print = append(print, lines[i])
+			}
+			// fmt.Println("l0", i, lines[i][0])
+			// fmt.Println("l1", i, lines[i][1])
+			// fmt.Println("l2", i, lines[i][2])
+		}
+
+		all = append(all, print...)
+		a = []string{}
+		p = []string{}
+		lines = [][]string{}
+
+	}
+	fmt.Println("all is : ", all)
+
+	for len(all) > 0 {
+		for i := 0; i < len(all); i++ {
+			fmt.Print(all[i][0])
+			// fmt.Println("all elem", all[i])
+			// fmt.Println("all minus elem", all[i][1:])
+
+			all[i] = all[i][1:]
+
+			if len(all[i]) == 0 {
+				all = append(all[:i], all[i+1:]...)
+				i--
+			}
+		}
+		fmt.Println()
+	}
+}
+
+// func Random(s []string) [][]string {
+// 	var res [][]string
+// 	var rev []string
+// 	var mid []string
+
+// 	mid = append(mid, s[:len(s)/2]...)
+// 	mid = append(mid, s[len(s)-1])
+// 	mid = append(mid, s[len(s)/2:len(s)-1]...)
+
+// 	for i := 0; i < len(s); i++ {
+// 		rev = append(rev, s[len(s)-1-i])
+// 	}
+// 	if len(s) != 3 {
+// 		res = append(res, rev, s)
+// 	} else {
+// 		res = append(res, rev, s, mid)
+
+// 	}
+// return res
+// }
